@@ -1,3 +1,4 @@
+use crate::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::vec3::*;
 use std::fmt;
@@ -64,21 +65,31 @@ impl fmt::Display for Color {
     }
 }
 
-pub fn ray_color(ray: &Ray) -> Color {
-    if hit_sphere(BoundVec3::new(0.0, 0.0, -1.0), 0.5, ray) {
-        return Color::new(1.0, 0.0, 0.0);
+pub fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
+    if let Some(hit) = world.hit(ray, 0.0, f64::INFINITY) {
+        return Color::new(
+            hit.normal.x() + 1.0,
+            hit.normal.y() + 1.0,
+            hit.normal.z() + 1.0,
+        ) * 0.5;
     }
+
+    // Background:
     let t = 0.5 * (ray.direction.y() + 1.0);
     let start_color = Color::new(1.0, 1.0, 1.0);
     let end_color = Color::new(0.5, 0.7, 1.0);
     start_color * (1.0 - t) + end_color * t
 }
 
-fn hit_sphere(center: BoundVec3, radius: f64, r: &Ray) -> bool {
-    let oc = r.origin - center;
-    let a = r.direction.free().dot(&r.direction.free());
-    let b = 2.0 * oc.dot(&r.direction.free());
-    let c = oc.dot(&oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.0
+fn hit_sphere(center: &BoundVec3, radius: f64, ray: &Ray) -> f64 {
+    let oc = ray.origin - *center;
+    let a = ray.direction.length_squared();
+    let half_b = oc.dot(&ray.direction.into());
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = half_b * half_b - a * c;
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (-half_b - discriminant.sqrt()) / a
+    }
 }

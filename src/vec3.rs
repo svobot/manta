@@ -12,8 +12,12 @@ impl Vec3 {
         Vec3 { x, y, z }
     }
 
+    fn length_squared(&self) -> f64 {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
     fn length(&self) -> f64 {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+        self.length_squared().sqrt()
     }
 }
 
@@ -129,10 +133,20 @@ impl FreeVec3 {
             z: self.0.x * other.0.y - self.0.y * other.0.x,
         })
     }
+
+    pub fn length_squared(&self) -> f64 {
+        self.0.length_squared()
+    }
+}
+
+impl From<UnitVec3> for FreeVec3 {
+    fn from(v: UnitVec3) -> Self {
+        FreeVec3(v.0)
+    }
 }
 
 impl Neg for FreeVec3 {
-    type Output = FreeVec3;
+    type Output = Self;
 
     fn neg(self) -> Self::Output {
         FreeVec3(Vec3 {
@@ -201,14 +215,26 @@ impl UnitVec3 {
         &self.0.z
     }
 
-    pub fn free(&self) -> FreeVec3 {
-        FreeVec3(self.0)
+    pub fn length_squared(&self) -> f64 {
+        self.0.length_squared()
     }
 }
 
 impl From<FreeVec3> for UnitVec3 {
     fn from(v: FreeVec3) -> Self {
         UnitVec3((v / v.0.length()).0)
+    }
+}
+
+impl Neg for UnitVec3 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        UnitVec3(Vec3 {
+            x: -self.0.x,
+            y: -self.0.y,
+            z: -self.0.z,
+        })
     }
 }
 
