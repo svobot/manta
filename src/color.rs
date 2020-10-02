@@ -1,8 +1,6 @@
-use crate::hittable::{HitRecord, Hittable};
+use crate::hittable::Hittable;
 use crate::ray::Ray;
-use crate::vec3::*;
-use std::fmt;
-use std::ops::{Add, Mul};
+use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Copy, Clone)]
 pub struct Color {
@@ -12,7 +10,7 @@ pub struct Color {
 }
 
 impl Color {
-    fn new(r: f64, g: f64, b: f64) -> Self {
+    pub fn new(r: f64, g: f64, b: f64) -> Self {
         Color { r, g, b }
     }
 
@@ -27,17 +25,31 @@ impl Color {
     pub fn b(&self) -> &f64 {
         &self.b
     }
+
+    pub fn write(&self, samples: i32) {
+        let scale = 1.0 / samples as f64;
+        println!(
+            "{} {} {}",
+            (256.0 * clamp(self.r() * scale, 0.0, 0.999)) as i32,
+            (256.0 * clamp(self.g() * scale, 0.0, 0.999)) as i32,
+            (256.0 * clamp(self.b() * scale, 0.0, 0.999)) as i32,
+        )
+    }
 }
 
 impl Add for Color {
     type Output = Self;
 
-    fn add(self, other: Self) -> Self::Output {
-        Color {
-            r: self.r + other.r,
-            g: self.g + other.g,
-            b: self.b + other.b,
-        }
+    fn add(self, rhs: Self) -> Self::Output {
+        Color::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
+    }
+}
+
+impl AddAssign<Color> for Color {
+    fn add_assign(&mut self, rhs: Self) {
+        self.r += rhs.r;
+        self.g += rhs.g;
+        self.b += rhs.b;
     }
 }
 
@@ -45,23 +57,7 @@ impl Mul<f64> for Color {
     type Output = Self;
 
     fn mul(self, rhs: f64) -> Self::Output {
-        Color {
-            r: self.r * rhs,
-            g: self.g * rhs,
-            b: self.b * rhs,
-        }
-    }
-}
-
-impl fmt::Display for Color {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{} {} {}",
-            (255.999 * self.r()) as i32,
-            (255.999 * self.g()) as i32,
-            (255.999 * self.b()) as i32
-        )
+        Color::new(self.r * rhs, self.g * rhs, self.b * rhs)
     }
 }
 
@@ -81,15 +77,12 @@ pub fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
     start_color * (1.0 - t) + end_color * t
 }
 
-fn hit_sphere(center: &BoundVec3, radius: f64, ray: &Ray) -> f64 {
-    let oc = ray.origin - *center;
-    let a = ray.direction.length_squared();
-    let half_b = oc.dot(&ray.direction.into());
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = half_b * half_b - a * c;
-    if discriminant < 0.0 {
-        -1.0
+fn clamp(x: f64, min: f64, max: f64) -> f64 {
+    if x < min {
+        min
+    } else if x > max {
+        max
     } else {
-        (-half_b - discriminant.sqrt()) / a
+        x
     }
 }
