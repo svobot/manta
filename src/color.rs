@@ -26,14 +26,14 @@ impl Color {
         &self.b
     }
 
-    pub fn write(&self, samples: i32) {
-        let scale = 1.0 / samples as f64;
-        println!(
-            "{} {} {}",
-            (256.0 * clamp(self.r() * scale, 0.0, 0.999)) as i32,
-            (256.0 * clamp(self.g() * scale, 0.0, 0.999)) as i32,
-            (256.0 * clamp(self.b() * scale, 0.0, 0.999)) as i32,
-        )
+    pub fn write(&self, samples: i32, pixels: &mut [u8]) {
+        let scale = 1. / samples as f64;
+        let r = (256. * clamp(self.r() * scale, 0., 0.999)) as u8;
+        let g = (256. * clamp(self.g() * scale, 0., 0.999)) as u8;
+        let b = (256. * clamp(self.b() * scale, 0., 0.999)) as u8;
+        pixels[0] = r;
+        pixels[1] = g;
+        pixels[2] = b;
     }
 }
 
@@ -62,19 +62,19 @@ impl Mul<f64> for Color {
 }
 
 pub fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
-    if let Some(hit) = world.hit(ray, 0.0, f64::INFINITY) {
+    if let Some(hit) = world.hit(ray, 0., f64::INFINITY) {
         return Color::new(
-            hit.normal.x() + 1.0,
-            hit.normal.y() + 1.0,
-            hit.normal.z() + 1.0,
+            hit.normal.x() + 1.,
+            hit.normal.y() + 1.,
+            hit.normal.z() + 1.,
         ) * 0.5;
     }
 
     // Background:
-    let t = 0.5 * (ray.direction.y() + 1.0);
-    let start_color = Color::new(1.0, 1.0, 1.0);
-    let end_color = Color::new(0.5, 0.7, 1.0);
-    start_color * (1.0 - t) + end_color * t
+    let t = 0.5 * (ray.direction.y() + 1.);
+    let start_color = Color::new(1., 1., 1.);
+    let end_color = Color::new(0.5, 0.7, 1.);
+    start_color * (1. - t) + end_color * t
 }
 
 fn clamp(x: f64, min: f64, max: f64) -> f64 {
