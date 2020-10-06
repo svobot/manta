@@ -1,5 +1,6 @@
 use crate::hittable::Hittable;
 use crate::ray::Ray;
+use crate::vec3::{BoundVec3, UnitVec3};
 use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Copy, Clone)]
@@ -27,13 +28,15 @@ impl Color {
     }
 
     pub fn write(&self, samples: i32, pixels: &mut [u8]) {
+        // Divide the color by the number of samples and gamma-correct for gamma=2.0.
         let scale = 1. / samples as f64;
-        let r = (256. * clamp(self.r() * scale, 0., 0.999)) as u8;
-        let g = (256. * clamp(self.g() * scale, 0., 0.999)) as u8;
-        let b = (256. * clamp(self.b() * scale, 0., 0.999)) as u8;
-        pixels[0] = r;
-        pixels[1] = g;
-        pixels[2] = b;
+        let color_corr = |color: &f64| (scale * color).sqrt();
+
+        // Convert colors to their 8-bit values.
+        let fun = |color: &f64| (256. * clamp(color_corr(color), 0., 0.999)) as u8;
+        pixels[0] = fun(self.r());
+        pixels[1] = fun(self.g());
+        pixels[2] = fun(self.b());
     }
 }
 
@@ -61,12 +64,17 @@ impl Mul<f64> for Color {
     }
 }
 
-pub fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
-    if let Some(hit) = world.hit(ray, 0., f64::INFINITY) {
-        return Color::new(
-            hit.normal.x() + 1.,
-            hit.normal.y() + 1.,
-            hit.normal.z() + 1.,
+pub fn ray_color(ray: &Ray, world: &dyn Hittable, depth: i32) -> Color {
+    if depth <= 0 {
+        return Color::new(0., 0., 0.);
+    }
+
+    if let Some(hit) = world.hit(ray, 0.001, f64::INFINITY) {
+        let target: BoundVec3 = hit.p + hit.normal.into() + UnitVec3::random_unit_vector().into();
+        return ray_color(
+            &Ray::new(&hit.p, &(target - hit.p).into()),
+            world,
+            depth - 1,
         ) * 0.5;
     }
 

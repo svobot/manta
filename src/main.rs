@@ -25,6 +25,7 @@ fn main() {
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as usize;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     let world = hittable_list::HittableList {
         hittables: vec![
@@ -45,7 +46,7 @@ fn main() {
                 let u = (i as f64 + rng.gen::<f64>()) / (image_width - 1) as f64;
                 let v = (j as f64 + rng.gen::<f64>()) / (image_height - 1) as f64;
                 let r = cam.ray(u, v);
-                pixel_color += color::ray_color(&r, &world);
+                pixel_color += color::ray_color(&r, &world, max_depth);
             }
             let pixel_index = 3 * ((image_height - 1 - j) * image_width + i);
             pixel_color.write(samples_per_pixel, &mut pixels[pixel_index..pixel_index + 3]);

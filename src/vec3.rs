@@ -1,3 +1,4 @@
+use rand::Rng;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -217,6 +218,14 @@ impl UnitVec3 {
 
     pub fn length_squared(&self) -> f64 {
         self.0.length_squared()
+    }
+
+    pub fn random_unit_vector() -> Self {
+        let mut rng = rand::thread_rng();
+        let a = rng.gen_range(0., 2. * std::f64::consts::PI);
+        let z: f64 = rng.gen_range(-1., 1.);
+        let r = (1. - z * z).sqrt();
+        FreeVec3::new(r * a.cos(), r * a.sin(), z).into()
     }
 }
 
