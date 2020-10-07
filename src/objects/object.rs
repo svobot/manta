@@ -1,13 +1,13 @@
 use crate::materials::Material;
 use crate::ray::Ray;
-use crate::vec3::{BoundVec3, FreeVec3, UnitVec3};
+use crate::vec3::{BoundVec3, UnitVec3};
 use std::rc::Rc;
 
 pub struct HitRecord {
     pub p: BoundVec3,
     pub normal: UnitVec3,
     pub t: f64,
-    front_face: bool,
+    pub front_face: bool,
     pub material: Rc<dyn Material>,
 }
 
@@ -19,7 +19,7 @@ impl HitRecord {
         t: f64,
         material: Rc<dyn Material>,
     ) -> Self {
-        let front_face = 0. > FreeVec3::from(ray.direction).dot(&outward_normal.into());
+        let front_face = 0. > ray.direction.dot(&outward_normal);
         let normal = if front_face {
             outward_normal
         } else {

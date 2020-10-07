@@ -25,7 +25,7 @@ impl Material for Metal {
                     + FreeVec3::from(UnitVec3::random_unit_vector()) * self.fuzziness,
             ),
         );
-        if FreeVec3::from(scattered.direction).dot(&hit.normal.into()) > 0. {
+        if scattered.direction.dot(&hit.normal) > 0. {
             Some((self.albedo, scattered))
         } else {
             None

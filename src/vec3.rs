@@ -243,6 +243,10 @@ impl UnitVec3 {
         let r = (1. - z * z).sqrt();
         FreeVec3::new(r * a.cos(), r * a.sin(), z).into()
     }
+
+    pub fn dot(&self, other: &Self) -> f64 {
+        self.0.x * other.0.x + self.0.y * other.0.y + self.0.z * other.0.z
+    }
 }
 
 impl From<FreeVec3> for UnitVec3 {
