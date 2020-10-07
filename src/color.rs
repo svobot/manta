@@ -1,4 +1,4 @@
-use crate::hittable::Hittable;
+use crate::objects::Object;
 use crate::ray::Ray;
 use crate::vec3::{BoundVec3, UnitVec3};
 use std::ops::{Add, AddAssign, Mul};
@@ -64,7 +64,7 @@ impl Mul<f64> for Color {
     }
 }
 
-pub fn ray_color(ray: &Ray, world: &dyn Hittable, depth: i32) -> Color {
+pub fn ray_color(ray: &Ray, world: &dyn Object, depth: i32) -> Color {
     if depth <= 0 {
         return Color::new(0., 0., 0.);
     }

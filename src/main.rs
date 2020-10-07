@@ -1,4 +1,5 @@
 use image::{png::*, ColorType};
+use objects::{ObjectList, Sphere};
 use rand::prelude::*;
 use std::error::Error;
 use std::fs::File;
@@ -7,10 +8,8 @@ use vec3::BoundVec3;
 
 mod camera;
 mod color;
-mod hittable;
-mod hittable_list;
+mod objects;
 mod ray;
-mod sphere;
 mod vec3;
 
 fn write_image(pixels: &[u8], width: u32, height: u32) -> Result<(), Box<dyn Error>> {
@@ -21,22 +20,26 @@ fn write_image(pixels: &[u8], width: u32, height: u32) -> Result<(), Box<dyn Err
 }
 
 fn main() {
+    // Image
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as usize;
     let samples_per_pixel = 100;
     let max_depth = 50;
 
-    let world = hittable_list::HittableList {
-        hittables: vec![
-            Rc::new(sphere::Sphere::new(BoundVec3::new(0., 0., -1.), 0.5)),
-            Rc::new(sphere::Sphere::new(BoundVec3::new(0., -100.5, -1.), 100.)),
+    // World
+    let world = ObjectList {
+        objects: vec![
+            Rc::new(Sphere::new(BoundVec3::new(0., 0., -1.), 0.5)),
+            Rc::new(Sphere::new(BoundVec3::new(0., -100.5, -1.), 100.)),
         ],
     };
 
+    // Camera
     let cam = camera::Camera::new();
-    let mut rng = thread_rng();
 
+    // Render
+    let mut rng = thread_rng();
     let mut pixels = vec![0u8; 3 * image_width * image_height];
     for j in (0..image_height).rev() {
         eprintln!("Scanlines remaining: {}", j);
