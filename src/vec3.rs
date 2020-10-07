@@ -216,6 +216,17 @@ impl DivAssign<f64> for FreeVec3 {
     }
 }
 
+pub fn reflection(v: FreeVec3, n: FreeVec3) -> FreeVec3 {
+    v - n * v.dot(&n) * 2.
+}
+
+pub fn refraction(uv: UnitVec3, n: UnitVec3, etai_over_etat: f64) -> FreeVec3 {
+    let cos_theta = (-uv).dot(&n);
+    let r_out_perp = (n * cos_theta + uv.into()) * etai_over_etat;
+    let r_out_parallel = n * -(1. - r_out_perp.length_squared()).abs().sqrt();
+    r_out_perp + r_out_parallel
+}
+
 #[derive(Copy, Clone)]
 pub struct UnitVec3(Vec3);
 

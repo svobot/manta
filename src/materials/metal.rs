@@ -2,7 +2,7 @@ use super::Material;
 use crate::color::Color;
 use crate::objects::HitRecord;
 use crate::ray::Ray;
-use crate::vec3::{FreeVec3, UnitVec3};
+use crate::vec3::{reflection, FreeVec3, UnitVec3};
 
 pub struct Metal {
     albedo: Color,
@@ -17,7 +17,6 @@ impl Metal {
 
 impl Material for Metal {
     fn scatter(&self, ray: &Ray, hit: &HitRecord) -> Option<(Color, Ray)> {
-        let reflection = |v: FreeVec3, n: FreeVec3| v - n * v.dot(&n) * 2.;
         let scattered = Ray::new(
             &hit.p,
             &UnitVec3::from(
