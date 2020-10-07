@@ -5,7 +5,13 @@ use crate::ray::Ray;
 use crate::vec3::{FreeVec3, UnitVec3};
 
 pub struct Lambertian {
-    pub albedo: Color,
+    albedo: Color,
+}
+
+impl Lambertian {
+    pub fn new(albedo: Color) -> Self {
+        Lambertian { albedo }
+    }
 }
 
 impl Material for Lambertian {

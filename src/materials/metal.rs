@@ -2,10 +2,17 @@ use super::Material;
 use crate::color::Color;
 use crate::objects::HitRecord;
 use crate::ray::Ray;
-use crate::vec3::FreeVec3;
+use crate::vec3::{FreeVec3, UnitVec3};
 
 pub struct Metal {
-    pub albedo: Color,
+    albedo: Color,
+    fuzziness: f64,
+}
+
+impl Metal {
+    pub fn new(albedo: Color, fuzziness: f64) -> Self {
+        Metal { albedo, fuzziness }
+    }
 }
 
 impl Material for Metal {
@@ -13,7 +20,10 @@ impl Material for Metal {
         let reflection = |v: FreeVec3, n: FreeVec3| v - n * v.dot(&n) * 2.;
         let scattered = Ray::new(
             &hit.p,
-            &reflection(ray.direction.into(), hit.normal.into()).into(),
+            &UnitVec3::from(
+                reflection(ray.direction.into(), hit.normal.into())
+                    + FreeVec3::from(UnitVec3::random_unit_vector()) * self.fuzziness,
+            ),
         );
         if FreeVec3::from(scattered.direction).dot(&hit.normal.into()) > 0. {
             Some((self.albedo, scattered))
