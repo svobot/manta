@@ -1,4 +1,6 @@
+use color::Color;
 use image::{png::*, ColorType};
+use materials::{Lambertian, Metal};
 use objects::{ObjectList, Sphere};
 use rand::prelude::*;
 use std::error::Error;
@@ -8,6 +10,7 @@ use vec3::BoundVec3;
 
 mod camera;
 mod color;
+mod materials;
 mod objects;
 mod ray;
 mod vec3;
@@ -28,10 +31,41 @@ fn main() {
     let max_depth = 50;
 
     // World
+
+    let material_ground = Rc::new(Lambertian {
+        albedo: Color::new(0.8, 0.8, 0.),
+    });
+    let material_center = Rc::new(Lambertian {
+        albedo: Color::new(0.7, 0.3, 0.3),
+    });
+    let material_left = Rc::new(Metal {
+        albedo: Color::new(0.8, 0.8, 0.8),
+    });
+    let material_right = Rc::new(Metal {
+        albedo: Color::new(0.8, 0.6, 0.2),
+    });
     let world = ObjectList {
         objects: vec![
-            Rc::new(Sphere::new(BoundVec3::new(0., 0., -1.), 0.5)),
-            Rc::new(Sphere::new(BoundVec3::new(0., -100.5, -1.), 100.)),
+            Rc::new(Sphere::new(
+                BoundVec3::new(0., -100.5, -1.),
+                100.,
+                material_ground,
+            )),
+            Rc::new(Sphere::new(
+                BoundVec3::new(0., 0., -1.),
+                0.5,
+                material_center,
+            )),
+            Rc::new(Sphere::new(
+                BoundVec3::new(-1., 0., -1.),
+                0.5,
+                material_left,
+            )),
+            Rc::new(Sphere::new(
+                BoundVec3::new(1., 0., -1.),
+                0.5,
+                material_right,
+            )),
         ],
     };
 

@@ -1,6 +1,5 @@
 use crate::objects::Object;
 use crate::ray::Ray;
-use crate::vec3::{BoundVec3, UnitVec3};
 use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Copy, Clone)]
@@ -56,6 +55,14 @@ impl AddAssign<Color> for Color {
     }
 }
 
+impl Mul<Color> for Color {
+    type Output = Self;
+
+    fn mul(self, rhs: Color) -> Self::Output {
+        Color::new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
+    }
+}
+
 impl Mul<f64> for Color {
     type Output = Self;
 
@@ -70,12 +77,11 @@ pub fn ray_color(ray: &Ray, world: &dyn Object, depth: i32) -> Color {
     }
 
     if let Some(hit) = world.hit(ray, 0.001, f64::INFINITY) {
-        let target: BoundVec3 = hit.p + hit.normal.into() + UnitVec3::random_unit_vector().into();
-        return ray_color(
-            &Ray::new(&hit.p, &(target - hit.p).into()),
-            world,
-            depth - 1,
-        ) * 0.5;
+        if let Some((attenuation, scattered)) = hit.material.scatter(ray, &hit) {
+            return attenuation * ray_color(&scattered, world, depth - 1);
+        } else {
+            return Color::new(0., 0., 0.);
+        }
     }
 
     // Background:

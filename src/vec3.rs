@@ -158,6 +158,22 @@ impl Neg for FreeVec3 {
     }
 }
 
+impl Add<FreeVec3> for FreeVec3 {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        FreeVec3(self.0 + rhs.0)
+    }
+}
+
+impl Sub<FreeVec3> for FreeVec3 {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        FreeVec3(self.0 - rhs.0)
+    }
+}
+
 impl Mul<f64> for FreeVec3 {
     type Output = Self;
 
