@@ -22,64 +22,105 @@ fn write_image(pixels: &[u8], width: u32, height: u32) -> Result<(), Box<dyn Err
     Ok(())
 }
 
+fn random_scene() -> ObjectList {
+    let mut world = ObjectList {
+        objects: Vec::new(),
+    };
+    // Ground
+    let material_ground = Rc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    world.add(Rc::new(Sphere::new(
+        BoundVec3::new(0., -1000., 0.),
+        1000.,
+        material_ground,
+    )));
+
+    let mut rng = rand::thread_rng();
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat: f64 = rng.gen();
+            let center = BoundVec3::new(
+                0.9 * rng.gen::<f64>() + (a as f64),
+                0.2,
+                0.9 * rng.gen::<f64>() + (b as f64),
+            );
+
+            if (center - BoundVec3::new(4., 0.2, 0.))
+                .length_squared()
+                .sqrt()
+                > 0.9
+            {
+                if choose_mat < 0.8 {
+                    // Diffuse
+                    let c1 = Color::new(rng.gen(), rng.gen(), rng.gen());
+                    let c2 = Color::new(rng.gen(), rng.gen(), rng.gen());
+
+                    let albedo = c1 * c2;
+                    let sphere_material = Rc::new(Lambertian::new(albedo));
+                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                } else if choose_mat < 0.95 {
+                    // Metal
+                    let albedo = Color::new(
+                        rng.gen_range(0.5, 1.),
+                        rng.gen_range(0.5, 1.),
+                        rng.gen_range(0.5, 1.),
+                    );
+                    let fuzziness = rng.gen_range(0., 0.5);
+                    let sphere_material = Rc::new(Metal::new(albedo, fuzziness));
+                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                } else {
+                    // Glass
+                    let sphere_material = Rc::new(Dielectric::new(1.5));
+                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                }
+            }
+        }
+    }
+    let material1 = Rc::new(Dielectric::new(1.5));
+    world.add(Rc::new(Sphere::new(
+        BoundVec3::new(0., 1., 0.),
+        1.,
+        material1,
+    )));
+
+    let material2 = Rc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    world.add(Rc::new(Sphere::new(
+        BoundVec3::new(-4., 1., 0.),
+        1.,
+        material2,
+    )));
+    let material3 = Rc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.));
+    world.add(Rc::new(Sphere::new(
+        BoundVec3::new(4., 1., 0.),
+        1.,
+        material3,
+    )));
+
+    world
+}
+
 fn main() {
     // Image
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
+    let aspect_ratio = 3.0 / 2.0;
+    let image_width = 1200;
     let image_height = (image_width as f64 / aspect_ratio) as usize;
-    let samples_per_pixel = 100;
+    let samples_per_pixel = 500;
     let max_depth = 50;
 
     // World
 
-    let material_ground = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.)));
-    let material_center = Rc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-    let material_left = Rc::new(Dielectric::new(1.5));
-    let material_right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.));
-    let world = ObjectList {
-        objects: vec![
-            Rc::new(Sphere::new(
-                BoundVec3::new(0., -100.5, -1.),
-                100.,
-                material_ground,
-            )),
-            Rc::new(Sphere::new(
-                BoundVec3::new(0., 0., -1.),
-                0.5,
-                material_center,
-            )),
-            Rc::new(Sphere::new(
-                BoundVec3::new(-1., 0., -1.),
-                0.5,
-                material_left.clone(),
-            )),
-            Rc::new(Sphere::new(
-                BoundVec3::new(-1., 0., -1.),
-                -0.45,
-                material_left,
-            )),
-            Rc::new(Sphere::new(
-                BoundVec3::new(1., 0., -1.),
-                0.5,
-                material_right,
-            )),
-        ],
-    };
+    let world = random_scene();
 
     // Camera
-    let lookfrom = BoundVec3::new(3., 3., 2.);
-    let lookat = FreeVec3::new(0., 0., -1.);
-    let dist_to_focus = (lookfrom - BoundVec3::new(0., 0., 0.) - lookat)
-        .length_squared()
-        .sqrt();
+    let lookfrom = BoundVec3::new(13., 2., 3.);
+    let lookat = FreeVec3::new(0., 0., 0.);
     let cam = camera::Camera::new(
         lookfrom,
         lookat,
         FreeVec3::new(0., 1., 0.),
         20.,
         aspect_ratio,
-        2.,
-        dist_to_focus,
+        0.1,
+        10.,
     );
 
     // Render
