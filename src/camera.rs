@@ -1,5 +1,5 @@
 use crate::ray::Ray;
-use crate::vec3::{BoundVec3, FreeVec3};
+use crate::vec3::{BoundVec3, FreeVec3, UnitVec3};
 
 pub struct Camera {
     origin: BoundVec3,
@@ -9,20 +9,30 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Self {
-        let aspect_ratio = 16.0 / 9.0;
-        let viewport_height = 2.0;
+    pub fn new(
+        lookfrom: BoundVec3,
+        lookat: FreeVec3,
+        vup: FreeVec3,
+        vfov: f64,
+        aspect_ratio: f64,
+    ) -> Self {
+        let theta = vfov.to_radians();
+        let h = (theta / 2.).tan();
+        let viewport_height = 2.0 * h;
         let viewport_width = viewport_height * aspect_ratio;
-        let focal_length = 1.0;
 
-        let origin = BoundVec3::new(0.0, 0.0, 0.0);
-        let horizontal = FreeVec3::new(viewport_width, 0.0, 0.0);
-        let vertical = FreeVec3::new(0.0, viewport_height, 0.0);
-        let lower_left_corner =
-            origin - horizontal / 2.0 - vertical / 2.0 - FreeVec3::new(0.0, 0.0, focal_length);
+        let w = FreeVec3::from(UnitVec3::from(
+            lookfrom - BoundVec3::new(0., 0., 0.) - lookat,
+        ));
+        let u = FreeVec3::from(UnitVec3::from(vup.cross(&w)));
+        let v = w.cross(&u);
+
+        let origin = lookfrom;
+        let horizontal = u * viewport_width;
+        let vertical = v * viewport_height;
         Camera {
+            lower_left_corner: origin - w - horizontal / 2.0 - vertical / 2.0,
             origin,
-            lower_left_corner,
             horizontal,
             vertical,
         }

@@ -6,7 +6,7 @@ use rand::prelude::*;
 use std::error::Error;
 use std::fs::File;
 use std::rc::Rc;
-use vec3::BoundVec3;
+use vec3::{BoundVec3, FreeVec3};
 
 mod camera;
 mod color;
@@ -55,7 +55,7 @@ fn main() {
             )),
             Rc::new(Sphere::new(
                 BoundVec3::new(-1., 0., -1.),
-                -0.4,
+                -0.45,
                 material_left,
             )),
             Rc::new(Sphere::new(
@@ -67,7 +67,13 @@ fn main() {
     };
 
     // Camera
-    let cam = camera::Camera::new();
+    let cam = camera::Camera::new(
+        BoundVec3::new(-2., 2., 1.),
+        FreeVec3::new(0., 0., -1.),
+        FreeVec3::new(0., 1., 0.),
+        90.,
+        aspect_ratio,
+    );
 
     // Render
     let mut rng = thread_rng();
