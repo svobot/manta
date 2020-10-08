@@ -67,12 +67,19 @@ fn main() {
     };
 
     // Camera
+    let lookfrom = BoundVec3::new(3., 3., 2.);
+    let lookat = FreeVec3::new(0., 0., -1.);
+    let dist_to_focus = (lookfrom - BoundVec3::new(0., 0., 0.) - lookat)
+        .length_squared()
+        .sqrt();
     let cam = camera::Camera::new(
-        BoundVec3::new(-2., 2., 1.),
-        FreeVec3::new(0., 0., -1.),
+        lookfrom,
+        lookat,
         FreeVec3::new(0., 1., 0.),
-        90.,
+        20.,
         aspect_ratio,
+        2.,
+        dist_to_focus,
     );
 
     // Render

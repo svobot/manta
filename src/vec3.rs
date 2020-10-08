@@ -123,6 +123,18 @@ impl FreeVec3 {
         FreeVec3(Vec3 { x, y, z })
     }
 
+    pub fn x(&self) -> &f64 {
+        &self.0.x
+    }
+
+    pub fn y(&self) -> &f64 {
+        &self.0.y
+    }
+
+    pub fn z(&self) -> &f64 {
+        &self.0.z
+    }
+
     pub fn dot(&self, other: &Self) -> f64 {
         self.0.x * other.0.x + self.0.y * other.0.y + self.0.z * other.0.z
     }
@@ -137,6 +149,16 @@ impl FreeVec3 {
 
     pub fn length_squared(&self) -> f64 {
         self.0.length_squared()
+    }
+
+    pub fn random_in_unit_disk() -> Self {
+        let mut rng = rand::thread_rng();
+        loop {
+            let p = FreeVec3::new(rng.gen_range(-1., 1.), rng.gen_range(-1., 1.), 0.);
+            if p.length_squared() < 1. {
+                return p;
+            }
+        }
     }
 }
 
