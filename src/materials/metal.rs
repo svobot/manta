@@ -2,7 +2,8 @@ use super::Material;
 use crate::color::Color;
 use crate::objects::HitRecord;
 use crate::ray::Ray;
-use crate::vec3::{reflection, FreeVec3, UnitVec3};
+use crate::spaces::vec3::reflection;
+use crate::spaces::{UnitVec3, Vec3};
 
 pub struct Metal {
     albedo: Color,
@@ -20,8 +21,8 @@ impl Material for Metal {
         let scattered = Ray::new(
             &hit.p,
             &UnitVec3::from(
-                reflection(ray.direction.into(), hit.normal.into())
-                    + FreeVec3::from(UnitVec3::random_unit_vector()) * self.fuzziness,
+                reflection(ray.direction, hit.normal)
+                    + UnitVec3::random_unit_vector() * self.fuzziness,
             ),
         );
         if scattered.direction.dot(&hit.normal) > 0. {

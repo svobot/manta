@@ -1,5 +1,6 @@
 use crate::objects::Object;
 use crate::ray::Ray;
+use crate::spaces::Vec3;
 use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Copy, Clone)]

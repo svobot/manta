@@ -1,10 +1,10 @@
 use crate::materials::Material;
 use crate::ray::Ray;
-use crate::vec3::{BoundVec3, UnitVec3};
+use crate::spaces::{Point, UnitVec3, Vec3};
 use std::rc::Rc;
 
 pub struct HitRecord {
-    pub p: BoundVec3,
+    pub p: Point,
     pub normal: UnitVec3,
     pub t: f64,
     pub front_face: bool,
@@ -14,7 +14,7 @@ pub struct HitRecord {
 impl HitRecord {
     pub fn new(
         ray: &Ray,
-        p: BoundVec3,
+        p: Point,
         outward_normal: UnitVec3,
         t: f64,
         material: Rc<dyn Material>,

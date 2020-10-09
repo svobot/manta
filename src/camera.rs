@@ -1,9 +1,9 @@
 use crate::ray::Ray;
-use crate::vec3::{BoundVec3, FreeVec3, UnitVec3};
+use crate::spaces::{FreeVec3, Point, UnitVec3, Vec3};
 
 pub struct Camera {
-    origin: BoundVec3,
-    lower_left_corner: BoundVec3,
+    origin: Point,
+    lower_left_corner: Point,
     horizontal: FreeVec3,
     vertical: FreeVec3,
     u: FreeVec3,
@@ -14,7 +14,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(
-        lookfrom: BoundVec3,
+        lookfrom: Point,
         lookat: FreeVec3,
         vup: FreeVec3,
         vfov: f64,
@@ -27,10 +27,8 @@ impl Camera {
         let viewport_height = 2.0 * h;
         let viewport_width = viewport_height * aspect_ratio;
 
-        let w = FreeVec3::from(UnitVec3::from(
-            lookfrom - BoundVec3::new(0., 0., 0.) - lookat,
-        ));
-        let u = FreeVec3::from(UnitVec3::from(vup.cross(&w)));
+        let w = UnitVec3::from(lookfrom - Point::new(0., 0., 0.) - lookat);
+        let u = UnitVec3::from(vup.cross(&w));
         let v = w.cross(&u);
 
         let origin = lookfrom;
@@ -42,15 +40,15 @@ impl Camera {
             origin,
             horizontal,
             vertical,
-            u,
+            u: u.into(),
             v,
-            w,
+            w: w.into(),
         }
     }
 
     pub fn ray(&self, s: f64, t: f64) -> Ray {
         let rd = FreeVec3::random_in_unit_disk() * self.lens_radius;
-        let offset = self.u * *rd.x() + self.v * *rd.y();
+        let offset = self.u * rd.x() + self.v * rd.y();
 
         Ray::new(
             &(self.origin + offset),

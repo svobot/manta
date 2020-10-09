@@ -2,8 +2,8 @@ use super::Material;
 use crate::color::Color;
 use crate::objects::HitRecord;
 use crate::ray::Ray;
-use crate::vec3::{reflection, refraction};
-use rand::Rng;
+use crate::spaces::vec3::{reflection, refraction};
+use crate::spaces::Vec3;
 
 pub struct Dielectric {
     refraction_index: f64,
@@ -28,7 +28,7 @@ impl Material for Dielectric {
         let cannot_refract = refract_ratio * sin_theta > 1.;
         let direction = if cannot_refract || reflectance(cos_theta, refract_ratio) > rand::random()
         {
-            reflection(ray.direction.into(), hit.normal.into())
+            reflection(ray.direction, hit.normal)
         } else {
             refraction(ray.direction, hit.normal, refract_ratio)
         };

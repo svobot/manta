@@ -3,17 +3,17 @@ use image::{png::*, ColorType};
 use materials::{Dielectric, Lambertian, Metal};
 use objects::{ObjectList, Sphere};
 use rand::prelude::*;
+use spaces::{FreeVec3, Point, Vec3};
 use std::error::Error;
 use std::fs::File;
 use std::rc::Rc;
-use vec3::{BoundVec3, FreeVec3};
 
 mod camera;
 mod color;
 mod materials;
 mod objects;
 mod ray;
-mod vec3;
+mod spaces;
 
 fn write_image(pixels: &[u8], width: u32, height: u32) -> Result<(), Box<dyn Error>> {
     let output = File::create("image.png")?;
@@ -29,7 +29,7 @@ fn random_scene() -> ObjectList {
     // Ground
     let material_ground = Rc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     world.add(Rc::new(Sphere::new(
-        BoundVec3::new(0., -1000., 0.),
+        Point::new(0., -1000., 0.),
         1000.,
         material_ground,
     )));
@@ -38,17 +38,13 @@ fn random_scene() -> ObjectList {
     for a in -11..11 {
         for b in -11..11 {
             let choose_mat: f64 = rng.gen();
-            let center = BoundVec3::new(
+            let center = Point::new(
                 0.9 * rng.gen::<f64>() + (a as f64),
                 0.2,
                 0.9 * rng.gen::<f64>() + (b as f64),
             );
 
-            if (center - BoundVec3::new(4., 0.2, 0.))
-                .length_squared()
-                .sqrt()
-                > 0.9
-            {
+            if (center - Point::new(4., 0.2, 0.)).length() > 0.9 {
                 if choose_mat < 0.8 {
                     // Diffuse
                     let c1 = Color::new(rng.gen(), rng.gen(), rng.gen());
@@ -76,24 +72,12 @@ fn random_scene() -> ObjectList {
         }
     }
     let material1 = Rc::new(Dielectric::new(1.5));
-    world.add(Rc::new(Sphere::new(
-        BoundVec3::new(0., 1., 0.),
-        1.,
-        material1,
-    )));
+    world.add(Rc::new(Sphere::new(Point::new(0., 1., 0.), 1., material1)));
 
     let material2 = Rc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
-    world.add(Rc::new(Sphere::new(
-        BoundVec3::new(-4., 1., 0.),
-        1.,
-        material2,
-    )));
+    world.add(Rc::new(Sphere::new(Point::new(-4., 1., 0.), 1., material2)));
     let material3 = Rc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.));
-    world.add(Rc::new(Sphere::new(
-        BoundVec3::new(4., 1., 0.),
-        1.,
-        material3,
-    )));
+    world.add(Rc::new(Sphere::new(Point::new(4., 1., 0.), 1., material3)));
 
     world
 }
@@ -101,9 +85,9 @@ fn random_scene() -> ObjectList {
 fn main() {
     // Image
     let aspect_ratio = 3.0 / 2.0;
-    let image_width = 1200;
+    let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as usize;
-    let samples_per_pixel = 500;
+    let samples_per_pixel = 100;
     let max_depth = 50;
 
     // World
@@ -111,7 +95,7 @@ fn main() {
     let world = random_scene();
 
     // Camera
-    let lookfrom = BoundVec3::new(13., 2., 3.);
+    let lookfrom = Point::new(13., 2., 3.);
     let lookat = FreeVec3::new(0., 0., 0.);
     let cam = camera::Camera::new(
         lookfrom,
