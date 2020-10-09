@@ -19,7 +19,7 @@ pub trait Vec3 {
     }
 
     fn length_squared(&self) -> f64 {
-        self.x() * self.x() + self.y() * self.y() + self.z() * self.z()
+        self.x().powi(2) + self.y().powi(2) + self.z().powi(2)
     }
 
     fn length(&self) -> f64 {

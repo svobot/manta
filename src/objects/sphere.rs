@@ -25,8 +25,8 @@ impl Object for Sphere {
         let oc = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b = oc.dot(&ray.direction);
-        let c = oc.length_squared() - self.radius * self.radius;
-        let discriminant = half_b * half_b - a * c;
+        let c = oc.length_squared() - self.radius.powi(2);
+        let discriminant = half_b.powi(2) - a * c;
 
         if discriminant > 0.0 {
             let root = discriminant.sqrt();
