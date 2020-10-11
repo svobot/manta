@@ -3,3 +3,7 @@ Cargo.lock
 
 *.ppm
 *.png
+
+# flamegraph artifacts
+perf.data
+flamegraph.svg
