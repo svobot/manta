@@ -46,8 +46,8 @@ impl<T: Vec3> AddAssign<T> for Point {
     }
 }
 
-impl SubAssign<FreeVec3> for Point {
-    fn sub_assign(&mut self, rhs: FreeVec3) {
+impl<T: Vec3> SubAssign<T> for Point {
+    fn sub_assign(&mut self, rhs: T) {
         self.x -= rhs.x();
         self.y -= rhs.y();
         self.z -= rhs.z();
