@@ -1,3 +1,4 @@
+use crate::material::scatter;
 use crate::objects::Object;
 use crate::ray::Ray;
 use crate::spaces::Vec3;
@@ -78,7 +79,7 @@ pub fn ray_color(ray: &Ray, world: &dyn Object, depth: i32) -> Color {
     }
 
     if let Some(hit) = world.hit(ray, 0.001, f64::INFINITY) {
-        if let Some((attenuation, scattered)) = hit.material.scatter(ray, &hit) {
+        if let Some((attenuation, scattered)) = scatter(ray, &hit) {
             return attenuation * ray_color(&scattered, world, depth - 1);
         } else {
             return Color::new(0., 0., 0.);

@@ -1,24 +1,17 @@
-use crate::materials::Material;
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::spaces::{Point, UnitVec3, Vec3};
-use std::rc::Rc;
 
 pub struct HitRecord {
     pub p: Point,
     pub normal: UnitVec3,
     pub t: f64,
     pub front_face: bool,
-    pub material: Rc<dyn Material>,
+    pub material: Material,
 }
 
 impl HitRecord {
-    pub fn new(
-        ray: &Ray,
-        p: Point,
-        outward_normal: UnitVec3,
-        t: f64,
-        material: Rc<dyn Material>,
-    ) -> Self {
+    pub fn new(ray: &Ray, p: Point, outward_normal: UnitVec3, t: f64, material: Material) -> Self {
         let front_face = 0. > ray.direction.dot(&outward_normal);
         let normal = if front_face {
             outward_normal

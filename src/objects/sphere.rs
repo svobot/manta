@@ -1,17 +1,16 @@
 use super::{HitRecord, Object};
-use crate::materials::Material;
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::spaces::{Point, Vec3};
-use std::rc::Rc;
 
 pub struct Sphere {
     center: Point,
     radius: f64,
-    material: Rc<dyn Material>,
+    material: Material,
 }
 
 impl Sphere {
-    pub fn new(center: Point, radius: f64, material: Rc<dyn Material>) -> Self {
+    pub fn new(center: Point, radius: f64, material: Material) -> Self {
         Sphere {
             center,
             radius,
@@ -38,7 +37,7 @@ impl Object for Sphere {
                         p,
                         ((p - self.center) / self.radius).into(),
                         t,
-                        self.material.clone(),
+                        self.material,
                     ));
                 }
             }

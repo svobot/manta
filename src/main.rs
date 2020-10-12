@@ -1,6 +1,6 @@
 use color::Color;
 use image::{png::*, ColorType};
-use materials::{Dielectric, Lambertian, Metal};
+use material::Material;
 use objects::{ObjectList, Sphere};
 use rand::prelude::*;
 use spaces::{FreeVec3, Point, Vec3};
@@ -10,7 +10,7 @@ use std::rc::Rc;
 
 mod camera;
 mod color;
-mod materials;
+mod material;
 mod objects;
 mod ray;
 mod spaces;
@@ -27,7 +27,7 @@ fn random_scene() -> ObjectList {
         objects: Vec::new(),
     };
     // Ground
-    let material_ground = Rc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let material_ground = Material::Lambertian(Color::new(0.5, 0.5, 0.5));
     world.add(Rc::new(Sphere::new(
         Point::new(0., -1000., 0.),
         1000.,
@@ -51,7 +51,7 @@ fn random_scene() -> ObjectList {
                     let c2 = Color::new(rng.gen(), rng.gen(), rng.gen());
 
                     let albedo = c1 * c2;
-                    let sphere_material = Rc::new(Lambertian::new(albedo));
+                    let sphere_material = Material::Lambertian(albedo);
                     world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else if choose_mat < 0.95 {
                     // Metal
@@ -61,22 +61,28 @@ fn random_scene() -> ObjectList {
                         rng.gen_range(0.5, 1.),
                     );
                     let fuzziness = rng.gen_range(0., 0.5);
-                    let sphere_material = Rc::new(Metal::new(albedo, fuzziness));
+                    let sphere_material = Material::Metal {
+                        color: albedo,
+                        fuzziness,
+                    };
                     world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else {
                     // Glass
-                    let sphere_material = Rc::new(Dielectric::new(1.5));
+                    let sphere_material = Material::Dielectric(1.5);
                     world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 }
             }
         }
     }
-    let material1 = Rc::new(Dielectric::new(1.5));
+    let material1 = Material::Dielectric(1.5);
     world.add(Rc::new(Sphere::new(Point::new(0., 1., 0.), 1., material1)));
 
-    let material2 = Rc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    let material2 = Material::Lambertian(Color::new(0.4, 0.2, 0.1));
     world.add(Rc::new(Sphere::new(Point::new(-4., 1., 0.), 1., material2)));
-    let material3 = Rc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.));
+    let material3 = Material::Metal {
+        color: Color::new(0.7, 0.6, 0.5),
+        fuzziness: 0.,
+    };
     world.add(Rc::new(Sphere::new(Point::new(4., 1., 0.), 1., material3)));
 
     world
