@@ -37,7 +37,7 @@ impl Object for Sphere {
                         p,
                         ((p - self.center) / self.radius).into(),
                         t,
-                        self.material,
+                        self.material.clone(),
                     ));
                 }
             }

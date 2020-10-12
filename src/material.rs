@@ -4,7 +4,7 @@ use crate::ray::Ray;
 use crate::spaces::vec3::{reflection, refraction};
 use crate::spaces::{FreeVec3, UnitVec3, Vec3};
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub enum Material {
     Lambertian(Color),
     Metal { color: Color, fuzziness: f64 },
