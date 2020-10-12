@@ -8,7 +8,6 @@ pub struct Camera {
     vertical: FreeVec3,
     u: FreeVec3,
     v: FreeVec3,
-    w: FreeVec3,
     lens_radius: f64,
 }
 
@@ -42,7 +41,6 @@ impl Camera {
             vertical,
             u: u.into(),
             v,
-            w: w.into(),
         }
     }
 
