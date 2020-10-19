@@ -1,13 +1,13 @@
 use super::{HitRecord, Object};
 use crate::ray::Ray;
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct ObjectList {
-    pub objects: Vec<Rc<dyn Object>>,
+    pub objects: Vec<Arc<dyn Object + Send + Sync>>,
 }
 
 impl ObjectList {
-    pub fn add(&mut self, object: Rc<dyn Object>) {
+    pub fn add(&mut self, object: Arc<dyn Object + Send + Sync>) {
         self.objects.push(object);
     }
 }
